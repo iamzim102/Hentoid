@@ -1,6 +1,5 @@
 package me.devsaki.hentoid.WebActivities;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;

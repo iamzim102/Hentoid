@@ -19,9 +19,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import java.net.CookieHandler;
-import java.net.CookiePolicy;
-import java.net.HttpCookie;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Date;
@@ -310,22 +307,15 @@ public class WebActivity extends AppCompatActivity {
             }
 
             try {
-                java.net.CookieManager cookieManager = Helper.getCookieManager();
                 String cookies = CookieManager.getInstance().getCookie(url);
 
                 if (cookies != null) {
                     String[] cookiesArray = cookies.split(";");
                     for (String cookie : cookiesArray) {
                         String key = cookie.split("=")[0].trim();
-                        String value = cookie.split("=")[1].trim();
-                        HttpCookie httpCookie = new HttpCookie(key, value);
-                        if (uri != null) {
-                            httpCookie.setDomain(uri.getHost());
+                        if (key.equals("Tsumino_Web")) {
+                            Helper.setSessionCookie(cookie);
                         }
-                        httpCookie.setPath("/");
-                        httpCookie.setVersion(0);
-                        cookieManager.getCookieStore().add(uri, httpCookie);
-
                     }
                 }
             } catch (Exception ex) {

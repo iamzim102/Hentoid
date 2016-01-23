@@ -1,14 +1,10 @@
 package me.devsaki.hentoid.parser;
 
-import android.text.TextUtils;
-import android.util.Log;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +13,6 @@ import me.devsaki.hentoid.database.domains.Content;
 import me.devsaki.hentoid.database.enums.AttributeType;
 import me.devsaki.hentoid.database.enums.Site;
 import me.devsaki.hentoid.util.AttributeMap;
-import me.devsaki.hentoid.util.Helper;
 import me.devsaki.hentoid.util.HttpClientHelper;
 
 /**
@@ -99,16 +94,14 @@ public class TsuminoParser {
         String baseUrl = content.getReaderUrl();
         int qtyPages = content.getQtyPages();
         List<String> imageUrlList = new ArrayList<>();
-        HttpClientHelper httpSession = new HttpClientHelper(baseUrl);
 
         for(int i = 1; i <= qtyPages; i++) {
-            String httpDoc = httpSession.callSession(baseUrl + '/' + i);
+            String httpDoc = HttpClientHelper.call(baseUrl + '/' + i);
             String imageUrl = Jsoup
                     .parse(httpDoc)
                     .select("img.reader-img")
                     .attr("src");
-            imageUrlList.add(imageUrl);
-            Log.d("TEST", imageUrl);
+            imageUrlList.add(Site.TSUMINO.getUrl() + imageUrl);
         }
 
         return imageUrlList;

@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -19,14 +18,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.CookieHandler;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import me.devsaki.hentoid.HentoidApplication;
 import me.devsaki.hentoid.database.domains.Content;
 import me.devsaki.hentoid.database.enums.Site;
 
@@ -36,15 +32,18 @@ import me.devsaki.hentoid.database.enums.Site;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public final class Helper {
 
-    public static CookieManager getCookieManager() {
-        java.net.CookieManager cookieManager =
-                (java.net.CookieManager) CookieHandler.getDefault();
-        if (cookieManager == null) {
-            cookieManager = new java.net.CookieManager();
-            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-            CookieHandler.setDefault(cookieManager);
-        }
-        return cookieManager;
+    public static void setSessionCookie(String sessionCookie) {
+        PreferenceManager
+                .getDefaultSharedPreferences(HentoidApplication.getInstance())
+                .edit()
+                .putString(ConstantsPreferences.WEB_SESSION_COOKIE, sessionCookie)
+                .apply();
+    }
+
+    public static String getSessionCookie() {
+        return PreferenceManager
+                .getDefaultSharedPreferences(HentoidApplication.getInstance())
+                .getString(ConstantsPreferences.WEB_SESSION_COOKIE, "");
     }
 
     public static File getDownloadDir(Content content, Context context) {
@@ -206,7 +205,7 @@ public final class Helper {
     public static void saveInStorage(File file, String imageUrl)
             throws Exception {
 
-        imageUrl = Helper.escapeURL(imageUrl);
+//        imageUrl = Helper.escapeURL(imageUrl);
 
         OutputStream output = null;
         InputStream input = null;
@@ -216,18 +215,15 @@ public final class Helper {
                 final int BUFFER_SIZE = 23 * 1024;
 
                 URL url = new URL(imageUrl);
-                URI uri = new URI(url.toString());
-                CookieManager cookieManager = Helper.getCookieManager();
+                String sessionCookie = Helper.getSessionCookie();
 
                 HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setConnectTimeout(10000);
                 urlConnection.setRequestProperty("User-Agent", Constants.USER_AGENT);
-                if (cookieManager.getCookieStore().getCookies().size() > 0) {
-                    urlConnection.setRequestProperty("Cookie",
-                            TextUtils.join("; ", cookieManager.getCookieStore().get(uri)));
+                if (!sessionCookie.isEmpty()) {
+                    urlConnection.setRequestProperty("Cookie", sessionCookie);
                 }
-
                 urlConnection.connect();
 
                 input = urlConnection.getInputStream();

@@ -23,7 +23,6 @@ import me.devsaki.hentoid.R;
 import me.devsaki.hentoid.database.HentoidDB;
 import me.devsaki.hentoid.database.domains.Content;
 import me.devsaki.hentoid.database.domains.ImageFile;
-import me.devsaki.hentoid.database.enums.Site;
 import me.devsaki.hentoid.database.enums.StatusContent;
 import me.devsaki.hentoid.parser.HitomiParser;
 import me.devsaki.hentoid.parser.NhentaiParser;
@@ -192,10 +191,12 @@ public class DownloadManagerService extends IntentService {
             case DOWNLOADED:
             case ERROR:
             case UNHANDLED_ERROR:
-                resultIntent = new Intent(this, DownloadsActivity.class); break;
+                resultIntent = new Intent(this, DownloadsActivity.class);
+                break;
             case DOWNLOADING:
             case PAUSED:
-                resultIntent = new Intent(this, DownloadManagerActivity.class); break;
+                resultIntent = new Intent(this, DownloadManagerActivity.class);
+                break;
             case SAVED:
                 resultIntent = new Intent(this, content.getWebActivityClass());
                 resultIntent.putExtra("url", content.getUrl());
@@ -216,15 +217,20 @@ public class DownloadManagerService extends IntentService {
 
             switch (status) {
                 case DOWNLOADED:
-                    resource = R.string.download_completed; break;
+                    resource = R.string.download_completed;
+                    break;
                 case PAUSED:
-                    resource = R.string.download_paused; break;
+                    resource = R.string.download_paused;
+                    break;
                 case SAVED:
-                    resource = R.string.download_cancelled; break;
+                    resource = R.string.download_cancelled;
+                    break;
                 case ERROR:
-                    resource = R.string.download_error; break;
+                    resource = R.string.download_error;
+                    break;
                 case UNHANDLED_ERROR:
-                    resource = R.string.unhandled_download_error; break;
+                    resource = R.string.unhandled_download_error;
+                    break;
             }
             mBuilder.setContentText(getResources().getString(resource));
             mBuilder.setProgress(0, 0, false);
@@ -264,11 +270,11 @@ public class DownloadManagerService extends IntentService {
         int i = 1;
         for (String str : aUrls) {
             String name = String.format("%03d", i) + ".jpg";
-            ImageFile imageFile = new ImageFile();
-            imageFile.setUrl(str);
-            imageFile.setOrder(i++);
-            imageFile.setStatus(StatusContent.SAVED);
-            imageFile.setName(name);
+            ImageFile imageFile = new ImageFile()
+                    .setOrder(i++)
+                    .setName(name)
+                    .setUrl(str)
+                    .setStatus(StatusContent.SAVED);
             content.getImageFiles().add(imageFile);
         }
         db.insertImageFiles(content);
